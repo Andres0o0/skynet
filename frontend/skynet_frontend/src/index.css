@@ -1,0 +1,54 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+body.dark-mode {
+  background-color: #121212;
+  color: #eaeaea;
+}
+
+body.dark-mode .table {
+  color: #eaeaea;
+}
+
+body.dark-mode .card,
+body.dark-mode .form-control,
+body.dark-mode .btn {
+  background-color: #1e1e1e;
+  color: #eaeaea;
+  border-color: #444;
+}
+
+body.dark-mode .btn:hover {
+  background-color: #333;
+}
+
+/* 🌙 Mejorar visibilidad del texto en inputs cuando está en modo oscuro */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #1e1e1e !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #444 !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #aaa !important;
+}
+
+/* Si tienes botones oscuros, mejora el contraste */
+body.dark-mode .btn {
+  color: #f1f1f1 !important;
+  background-color: #2a2a2a !important;
+  border-color: #444 !important;
+}
