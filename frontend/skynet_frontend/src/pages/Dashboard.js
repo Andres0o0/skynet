@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getClients, createClient, updateClient, deleteClient } from "../services/clientService";
+import { getUser } from "../utils/storage"; // 👈
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ function Dashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+     const storedUser = getUser(); 
     if (!storedUser) navigate("/");
     else {
       if (storedUser.role === "tecnico") navigate("/visits");

@@ -11,7 +11,7 @@ import {
 } from "../services/visitService";
 import { getUsers } from "../services/userService";
 import { getClients } from "../services/clientService";
-
+import { getUser } from "../utils/storage"; // 👈
 function Visits() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -31,7 +31,7 @@ function Visits() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedUser = getUser();
     if (!storedUser) {
       navigate("/");
     } else {

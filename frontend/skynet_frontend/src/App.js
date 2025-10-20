@@ -6,6 +6,7 @@ import Visits from './pages/Visits';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
 
+import { getUser } from "./utils/storage";
 
 function AppContent() {
   const location = useLocation();
