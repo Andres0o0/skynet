@@ -63,7 +63,12 @@ function Visits() {
 
       setVisits(visitsResult);
       setClients(clientsResult);
-      setTechnicians(usersResult.filter((u) => u.role === "tecnico"));
+     if (user?.role === "admin" || user?.role === "supervisor") {
+  setTechnicians(usersResult.filter((u) => u.role === "tecnico"));
+} else {
+  // Si es técnico, solo mostrar su propio perfil (por si acaso)
+  setTechnicians(usersResult.filter((u) => u.id === user.id));
+}
       setError("");
     } catch (err) {
       console.error("❌ Error general en loadData():", err);
