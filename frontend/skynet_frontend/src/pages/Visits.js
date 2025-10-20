@@ -63,7 +63,24 @@ function Visits() {
 
       setVisits(visitsResult);
       setClients(clientsResult);
-      setTechnicians(usersResult.filter((u) => u.role === "tecnico"));
+      // ✅ Asegura que el supervisor vea técnicos aunque el backend devuelva solo algunos usuarios
+if (Array.isArray(usersResult) && usersResult.length > 0) {
+  const techs = usersResult.filter((u) => u.role === "tecnico");
+  setTechnicians(techs);
+} else {
+  // Si el backend no devuelve usuarios, carga solo los técnicos desde un endpoint separado (si existe)
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/users`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const allUsers = await res.json();
+    setTechnicians(allUsers.filter((u) => u.role === "tecnico"));
+  } catch (error) {
+    console.warn("No se pudieron cargar los técnicos:", error);
+  }
+}
+
       setError("");
     } catch (err) {
       console.error("❌ Error general en loadData():", err);
