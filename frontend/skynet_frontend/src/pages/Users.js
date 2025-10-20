@@ -21,15 +21,15 @@ function Users() {
   const [editingUser, setEditingUser] = useState(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const storedUser = getUsers;
-    if (!storedUser || storedUser.role !== "admin") {
-      navigate("/dashboard");
-    } else {
-      setUser(storedUser);
-      loadUsers();
-    }
-  }, [navigate]);
+ useEffect(() => {
+  const storedUser = getUser(); // 👈 Llamamos correctamente la función
+  if (!storedUser || storedUser.role !== "admin") {
+    navigate("/dashboard");
+  } else {
+    setUser(storedUser);
+    loadUsers();
+  }
+}, [navigate]);
 
   const loadUsers = async () => {
     try {
