@@ -9,15 +9,17 @@ export function safeParse(json) {
   }
 }
 
-export function getUser() {
-  const raw = localStorage.getItem("user");
-  const user = safeParse(raw);
-  if (!user) {
-    // Si había basura en storage o undefined, lo limpiamos
-    localStorage.removeItem("user");
+export const getUser = () => {
+  try {
+    const raw = localStorage.getItem("user");
+    if (!raw || raw === "undefined" || raw === "null") return null; // 🧩 evita errores
+    return JSON.parse(raw);
+  } catch (err) {
+    console.warn("⚠️ JSON corrupto en storage:", err);
+    return null;
   }
-  return user;
-}
+};
+
 
 export function getToken() {
   const t = localStorage.getItem("token");
