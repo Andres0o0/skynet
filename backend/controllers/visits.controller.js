@@ -88,9 +88,7 @@ export async function createVisitController(req, res) {
     let { client_id, technician_id, check_in, check_out, status, scheduled_date } = req.body;
 
     // 👇 Solo normalizamos fecha programada
-    const localScheduled = scheduled_date
-      ? moment.tz(scheduled_date, "America/Guatemala").toDate()
-      : null;
+    const scheduledLocal = normalizeLocalDateTime(scheduled_date);
 
     const newV = await createVisit(
       client_id,
@@ -98,7 +96,7 @@ export async function createVisitController(req, res) {
       check_in || null,
       check_out || null,
       status || "pending",
-      localScheduled // 👈 guardar cadena local sin desfase
+      scheduledLocal // 👈 guardar cadena local sin desfase
     );
 
     res.status(201).json(newV);
