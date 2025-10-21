@@ -273,7 +273,7 @@ export async function registerVisitProgress(req, res) {
           try { await createReport(id, pdfUrl); } catch (err) { console.error("createReport err:", err); }
 
           const subject = `📋 Reporte de visita completada - ${vinfo.client_name}`;
-          const body = `
+const body = `
 Estimado/a ${vinfo.client_name},
 
 La visita programada con nuestro técnico ${vinfo.technician_name} ha sido completada correctamente.
@@ -289,17 +289,20 @@ Saludos cordiales,
 El equipo de SkyNet.
 `;
 
-          if (vinfo.client_email) {
-            await sendEmail(vinfo.client_email, subject, body, [
-              { filename: `reporte_visita_${id}.pdf`, path: pdfPath },
-            ]);
-            console.log("📨 Intentando enviar correo a:", vinfo.client_email);
-await sendEmail(vinfo.client_email, subject, body, [
-  { filename: `reporte_visita_${id}.pdf`, path: pdfPath },
-]);
-console.log("✅ Correo enviado a:", vinfo.client_email);;
-          }
-        } catch (err) {
+console.log("📨 Intentando enviar correo a:", vinfo.client_email);
+
+const sendRes = await sendEmail(
+  vinfo.client_email,
+  subject,
+  body,
+  [{ filename: `reporte_visita_${id}.pdf`, path: pdfPath }]
+);
+
+if (!sendRes.ok) {
+  console.error("❌ Falló el envío con Resend:", sendRes.error);
+} else {
+  console.log("✅ Correo enviado con Resend, id:", sendRes.id);
+}        } catch (err) {
           console.error("Error enviando correo tras completar visita:", err);
         }
       })();
