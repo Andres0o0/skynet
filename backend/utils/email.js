@@ -1,32 +1,25 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
-
 dotenv.config();
 
-export async function sendEmail(to, subject, text, attachments = []) {
-  try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM,
+/**
+ * Envía un correo usando Resend
+ * @param {string} to - Email del destinatario
+ * @param {string} subject - Asunto del correo
+ * @param {string} text - Cuerpo en texto plano
+ */
+export async function sendEmail(to, subject, text) {
+  try {
+    const response = await resend.emails.send({
+      from: "Skynet <onboarding@resend.dev>", // o tu dominio verificado
       to,
       subject,
       text,
-      attachments,
     });
-
-    console.log("✉️ Correo enviado:", info.messageId);
-    return info;
-  } catch (err) {
-    console.error("❌ Error enviando correo:", err);
-    throw err;
+    console.log("✅ Correo enviado correctamente con Resend:", response.id);
+  } catch (error) {
+    console.error("❌ Error enviando correo con Resend:", error);
   }
 }
