@@ -1,56 +1,40 @@
-// backend/utils/email.js
 import { Resend } from "resend";
-import dotenv from "dotenv";
 import fs from "fs";
+import path from "path";
 
-dotenv.config();
-
-const apiKey = process.env.RESEND_API_KEY;
-
-// --- logs para verificar que la variable llegó a producción ---
-if (!apiKey) {
-  console.error("❌ RESEND_API_KEY NO DEFINIDA en process.env");
-} else {
-  console.log(`🔑 RESEND_API_KEY cargada (longitud): ${String(apiKey).length}`);
-}
-
-const resend = new Resend(apiKey);
+// ⚙️ Instancia de Resend con tu API key (asegúrate de tenerla en .env)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
- * Envía correo usando Resend.
- * @param {string} to destinatario
- * @param {string} subject asunto
- * @param {string} text cuerpo en texto
- * @param {Array<{ filename: string, path: string }>} attachments
+ * Envía un correo con o sin archivo adjunto usando Resend
+ * @param {string} to - correo del destinatario
+ * @param {string} subject - asunto del correo
+ * @param {string} text - contenido del correo
+ * @param {Array} attachments - archivos adjuntos [{ filename, path }]
  */
 export async function sendEmail(to, subject, text, attachments = []) {
   try {
-    // Cargar adjuntos (si los hay)
-    const resendAttachments =
-      attachments?.length > 0
-        ? attachments.map((a) => ({
-            filename: a.filename,
-            content: fs.readFileSync(a.path), // Buffer
-          }))
-        : undefined;
+    console.log("📨 Intentando enviar correo a:", to);
 
-    const { data, error } = await resend.emails.send({
-      from: "Skynet <onboarding@resend.dev>",  // remitente de pruebas
-      to: [to],
+    // 📎 Procesar adjuntos si existen
+    const files = attachments.map((file) => ({
+      filename: file.filename,
+      content: fs.readFileSync(path.resolve(file.path)).toString("base64"),
+    }));
+
+    // ✅ Envío con dominio propio
+    const response = await resend.emails.send({
+      from: "Soporte SkyNet <notificaciones@skynetgt.online>", // 👈 remitente real de tu dominio
+      to,
       subject,
       text,
-      attachments: resendAttachments,
+      attachments: files,
     });
 
-    if (error) {
-      console.error("❌ Resend devolvió error:", error);
-      return { ok: false, error };
-    }
-
-    console.log("✅ Resend envió correo, id:", data?.id);
-    return { ok: true, id: data?.id };
-  } catch (err) {
-    console.error("❌ Error enviando correo con Resend:", err);
-    return { ok: false, error: err?.message || String(err) };
+    console.log("✅ Correo enviado correctamente:", response.id || response);
+    return response;
+  } catch (error) {
+    console.error("❌ Error enviando correo:", error);
+    throw error;
   }
 }
