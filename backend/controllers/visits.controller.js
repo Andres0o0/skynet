@@ -14,6 +14,24 @@ import PDFDocument from "pdfkit";
 import { fileURLToPath } from "url";
 import { pool } from "../config/db.js";
 
+// Convierte lo que venga del input <datetime-local> a una cadena "YYYY-MM-DD HH:mm:ss"
+// y evita cualquier conversión a UTC.
+// Si viene nulo o vacío, devuelve null.
+function normalizeLocalDateTime(input) {
+  if (!input) return null;
+  // Si ya viene como "YYYY-MM-DDTHH:mm" o "YYYY-MM-DDTHH:mm:ss"
+  // lo convertimos a "YYYY-MM-DD HH:mm:ss" sin Z y sin desfase.
+  const d = new Date(input); // se interpreta en zona local del servidor, pero devolveremos sus componentes locales
+  const YYYY = d.getFullYear();
+  const MM   = String(d.getMonth() + 1).padStart(2, "0");
+  const DD   = String(d.getDate()).padStart(2, "0");
+  const hh   = String(d.getHours()).padStart(2, "0");
+  const mm   = String(d.getMinutes()).padStart(2, "0");
+  const ss   = String(d.getSeconds()).padStart(2, "0");
+  return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}`;
+}
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -67,8 +85,20 @@ export async function getVisits(req, res) {
 // Crear
 export async function createVisitController(req, res) {
   try {
-    const { client_id, technician_id, check_in, check_out, status, scheduled_date } = req.body;
-    const newV = await createVisit(client_id, technician_id, check_in || null, check_out || null, status || "pending", scheduled_date || null);
+    let { client_id, technician_id, check_in, check_out, status, scheduled_date } = req.body;
+
+    // 👇 Solo normalizamos fecha programada
+    const scheduledLocal = normalizeLocalDateTime(scheduled_date);
+
+    const newV = await createVisit(
+      client_id,
+      technician_id,
+      check_in || null,
+      check_out || null,
+      status || "pending",
+      scheduledLocal // 👈 guardar cadena local sin desfase
+    );
+
     res.status(201).json(newV);
   } catch (error) {
     console.error("Error al crear visita:", error);
@@ -76,13 +106,26 @@ export async function createVisitController(req, res) {
   }
 }
 
+
 // Editar (mantengo generación de PDF+email si status === 'completed')
 export async function editVisit(req, res) {
   try {
     const { id } = req.params;
-    const { client_id, technician_id, check_in, check_out, status, scheduled_date, notes } = req.body;
+    let { client_id, technician_id, check_in, check_out, status, scheduled_date, notes } = req.body;
 
-    const updated = await editVisitModel(id, client_id, technician_id, check_in, check_out, status, scheduled_date, notes);
+    // 👇 Normaliza solo si llega valor
+    const scheduledLocal = scheduled_date ? normalizeLocalDateTime(scheduled_date) : null;
+
+    const updated = await editVisitModel(
+      id,
+      client_id,
+      technician_id,
+      check_in,
+      check_out,
+      status,
+      scheduledLocal, // 👈 aquí
+      notes
+    );
 
     if (!updated) return res.status(404).json({ error: "Visita no encontrada" });
 
