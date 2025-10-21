@@ -214,10 +214,11 @@ export async function registerVisitProgress(req, res) {
   try {
     const { id } = req.params;
     const { notes } = req.body;
-
+ console.log("👉 Entrando a registerVisitProgress para visita:", id);s
     // Obtiene la visita actual
     const result = await pool.query("SELECT * FROM visits WHERE id = $1", [id]);
     const visit = result.rows[0];
+     console.log("📦 Datos de la visita:", visit);
     if (!visit) return res.status(404).json({ error: "Visita no encontrada" });
 
     let query, values;
@@ -292,7 +293,11 @@ El equipo de SkyNet.
             await sendEmail(vinfo.client_email, subject, body, [
               { filename: `reporte_visita_${id}.pdf`, path: pdfPath },
             ]);
-            console.log(`✅ Reporte enviado a ${vinfo.client_email}`);
+            console.log("📨 Intentando enviar correo a:", vinfo.client_email);
+await sendEmail(vinfo.client_email, subject, body, [
+  { filename: `reporte_visita_${id}.pdf`, path: pdfPath },
+]);
+console.log("✅ Correo enviado a:", vinfo.client_email);;
           }
         } catch (err) {
           console.error("Error enviando correo tras completar visita:", err);
