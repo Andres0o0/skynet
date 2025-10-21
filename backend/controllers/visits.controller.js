@@ -214,7 +214,7 @@ export async function registerVisitProgress(req, res) {
   try {
     const { id } = req.params;
     const { notes } = req.body;
- console.log("👉 Entrando a registerVisitProgress para visita:", id);s
+ console.log("👉 Entrando a registerVisitProgress para visita:", id);
     // Obtiene la visita actual
     const result = await pool.query("SELECT * FROM visits WHERE id = $1", [id]);
     const visit = result.rows[0];
