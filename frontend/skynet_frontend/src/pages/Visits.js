@@ -41,40 +41,44 @@ function Visits() {
   }, [navigate]);
 
   const loadData = async () => {
-    try {
-      const [visitsData, clientsData, usersData] = await Promise.allSettled([
-        getVisits(),
-        getClients(),
-        getUsers(),
-      ]);
+  try {
+    const currentUser = getUser(); // ✅ usa directamente lo del storage
+    const [visitsData, clientsData, usersData] = await Promise.allSettled([
+      getVisits(),
+      getClients(),
+      getUsers(),
+    ]);
 
-      const visitsResult =
-        visitsData.status === "fulfilled" && Array.isArray(visitsData.value)
-          ? visitsData.value
-          : [];
-      const clientsResult =
-        clientsData.status === "fulfilled" && Array.isArray(clientsData.value)
-          ? clientsData.value
-          : [];
-      const usersResult =
-        usersData.status === "fulfilled" && Array.isArray(usersData.value)
-          ? usersData.value
-          : [];
+    const visitsResult =
+      visitsData.status === "fulfilled" && Array.isArray(visitsData.value)
+        ? visitsData.value
+        : [];
+    const clientsResult =
+      clientsData.status === "fulfilled" && Array.isArray(clientsData.value)
+        ? clientsData.value
+        : [];
+    const usersResult =
+      usersData.status === "fulfilled" && Array.isArray(usersData.value)
+        ? usersData.value
+        : [];
 
-      setVisits(visitsResult);
-      setClients(clientsResult);
-     if (user?.role === "admin" || user?.role === "supervisor") {
-  setTechnicians(usersResult.filter((u) => u.role === "tecnico"));
-} else {
-  // Si es técnico, solo mostrar su propio perfil (por si acaso)
-  setTechnicians(usersResult.filter((u) => u.id === user.id));
-}
-      setError("");
-    } catch (err) {
-      console.error("❌ Error general en loadData():", err);
-      setError("Error al cargar información");
+    setVisits(visitsResult);
+    setClients(clientsResult);
+
+    // 🔹 ahora sí, filtra técnicos de forma segura
+    if (currentUser?.role === "admin" || currentUser?.role === "supervisor") {
+      setTechnicians(usersResult.filter((u) => u.role === "tecnico"));
+    } else {
+      setTechnicians(usersResult.filter((u) => u.id === currentUser?.id));
     }
-  };
+
+    setError("");
+  } catch (err) {
+    console.error("❌ Error general en loadData():", err);
+    setError("Error al cargar información");
+  }
+};
+
 
   // ---------- Registros / check-in / check-out ----------
   const handleRegister = async (visit) => {
