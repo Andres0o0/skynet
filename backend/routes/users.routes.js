@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 // 🧑‍💼 Solo Admin puede gestionar usuarios
-router.get("/", verifyToken, authorizeRoles(["admin", "supervisor"]), getUsers);
+router.get("/", verifyToken, authorizeRoles(["admin", "supervisor","tecnico"]), getUsers);
 router.post("/", verifyToken, authorizeRoles(["admin"]), createUser);
 router.put("/:id", verifyToken, authorizeRoles(["admin"]), editUser);
 router.delete("/:id", verifyToken, authorizeRoles(["admin"]), removeUser);

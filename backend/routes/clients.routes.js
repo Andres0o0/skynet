@@ -5,7 +5,7 @@ import { authorizeRoles } from "../middleware/role.middleware.js";
 
 const router = express.Router();
 
-router.get("/", verifyToken, authorizeRoles("admin", "supervisor"), getClients);
+router.get("/", verifyToken, authorizeRoles("admin", "supervisor","tecnico"), getClients);
 router.post("/", verifyToken, authorizeRoles("admin", "supervisor"), createClient);
 router.put("/:id", verifyToken, authorizeRoles("admin", "supervisor"), editClient);
 router.delete("/:id", verifyToken, authorizeRoles("admin"), removeClient);
