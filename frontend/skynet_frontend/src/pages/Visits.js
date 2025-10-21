@@ -297,10 +297,8 @@ function Visits() {
                     <td>{v.technician_name}</td>
                     <td>
                       {v.scheduled_date
-                        ? new Date(v.scheduled_date).toLocaleString("es-GT", {
-        timeZone: "America/Guatemala",
-      })
-    : "—"}
+                        ? new Date(v.scheduled_date).toLocaleString()
+                        : "—"}
                     </td>
                     <td>
                       {v.check_in
