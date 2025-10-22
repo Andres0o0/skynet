@@ -17,7 +17,7 @@ function Login() {
       if (data.user.role === "admin" || data.user.role === "supervisor") {
       navigate("/dashboard");
     } else if (data.user.role === "tecnico") {
-      navigate("/visits"); // 👈 va directo a sus visitas
+      navigate("/visit"); // 👈 va directo a sus visitas
     } else {
       navigate("/dashboard");
     }
