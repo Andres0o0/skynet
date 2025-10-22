@@ -40,8 +40,13 @@ function Navbar() {
         </div>
 
         <li className="nav-link text-white">
-          <a className="nav-link" href="/settings">⚙️</a>
-        </li>
+  <button
+    className="btn btn-link nav-link text-white p-0"
+    onClick={() => navigate("/settings")}
+  >
+    ⚙️
+  </button>
+</li>
       </div>
     </nav>
   );
