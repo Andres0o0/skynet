@@ -19,17 +19,12 @@ import { pool } from "../config/db.js";
 // Si viene nulo o vacío, devuelve null.
 function normalizeLocalDateTime(input) {
   if (!input) return null;
-  // Si ya viene como "YYYY-MM-DDTHH:mm" o "YYYY-MM-DDTHH:mm:ss"
-  // lo convertimos a "YYYY-MM-DD HH:mm:ss" sin Z y sin desfase.
-  const d = new Date(input); // se interpreta en zona local del servidor, pero devolveremos sus componentes locales
-  const YYYY = d.getFullYear();
-  const MM   = String(d.getMonth() + 1).padStart(2, "0");
-  const DD   = String(d.getDate()).padStart(2, "0");
-  const hh   = String(d.getHours()).padStart(2, "0");
-  const mm   = String(d.getMinutes()).padStart(2, "0");
-  const ss   = String(d.getSeconds()).padStart(2, "0");
-  return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}`;
+
+  // Si viene como 'YYYY-MM-DDTHH:mm', separamos manualmente
+  const [datePart, timePart] = input.split("T");
+  return `${datePart} ${timePart}:00`; // Guardamos "YYYY-MM-DD HH:mm:00" sin convertir ni ajustar
 }
+
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -280,17 +275,20 @@ export async function registerVisitProgress(req, res) {
           try { await createReport(id, pdfUrl); } catch (err) { console.error("createReport err:", err); }
 
           const subject = `📋 Reporte de visita completada - ${vinfo.client_name}`;
+          const fmt = (val) => {
+  if (!val || val === "" || val === "null") return "Pendiente";
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return "Pendiente";
+  return d.toLocaleString("es-GT", { timeZone: "America/Guatemala", hour12: true });
+};
 const body = `
 Estimado/a ${vinfo.client_name},
 
 La visita programada con nuestro técnico ${vinfo.technician_name} ha sido completada correctamente.
 
-Fecha programada: ${vinfo.scheduled_date ? new Date(visit.scheduled_date).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
- : "No registrada"}
-⏰ Check-In: ${vinfo.check_in ? new Date(visit.check_in).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
- : "Pendiente"}
-⏰ Check-Out: ${vinfo.check_out ? new Date(visit.check_out).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
- : "Pendiente"}
+📅 Fecha programada: ${fmt(vinfo.scheduled_date)}
+⏰ Check-In: ${fmt(vinfo.check_in)}
+⏰ Check-Out: ${fmt(vinfo.check_out)}
 
 Adjunto encontrará el reporte en formato PDF con todos los detalles.
 
