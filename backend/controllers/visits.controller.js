@@ -118,10 +118,10 @@ export async function createVisitController(req, res) {
 export async function editVisit(req, res) {
   try {
     const { id } = req.params;
-    let { client_id, technician_id, check_in, check_out, status, scheduled_date, notes } = req.body;
+    let { client_id, technician_id, check_in, check_out, status, scheduled_date } = req.body;
 
     // 👇 Normaliza solo si llega valor
-    const scheduledLocal = scheduled_date ? normalizeLocalDateTime(scheduled_date) : null;
+     const scheduledLocal = normalizeLocalDateTime(scheduled_date);
 
     const updated = await editVisitModel(
       id,
@@ -131,7 +131,7 @@ export async function editVisit(req, res) {
       check_out,
       status,
       scheduledLocal, // 👈 aquí
-      notes
+     
     );
 
     if (!updated) return res.status(404).json({ error: "Visita no encontrada" });
