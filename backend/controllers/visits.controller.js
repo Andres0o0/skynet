@@ -20,9 +20,14 @@ import { pool } from "../config/db.js";
 function normalizeLocalDateTime(input) {
   if (!input) return null;
 
-  // Si viene como 'YYYY-MM-DDTHH:mm', separamos manualmente
-  const [datePart, timePart] = input.split("T");
-  return `${datePart} ${timePart}:00`; // Guardamos "YYYY-MM-DD HH:mm:00" sin convertir ni ajustar
+  // Convierte el string del navegador a fecha y la ajusta restando la diferencia
+  const date = new Date(input);
+
+  // Si la base está en UTC, convertimos el input a UTC real (+6h)
+  const adjusted = new Date(date.getTime() + 6 * 60 * 60 * 1000);
+
+  // Formato para guardar en la BD
+  return adjusted.toISOString().slice(0, 19).replace("T", " ");
 }
 
 
