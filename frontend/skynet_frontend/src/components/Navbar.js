@@ -30,7 +30,7 @@ function Navbar() {
             </Link>
           )}
 
-          <Link className="nav-link text-white me-3" to="/visits">
+          <Link className="nav-link text-white me-3" to="/visit">
             Visitas
           </Link>
 
