@@ -14,10 +14,17 @@ function Login() {
       const data = await login(email, password);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.error || 'Credenciales inválidas');
+      if (data.user.role === "admin" || data.user.role === "supervisor") {
+      navigate("/dashboard");
+    } else if (data.user.role === "tecnico") {
+      navigate("/visits"); // 👈 va directo a sus visitas
+    } else {
+      navigate("/dashboard");
     }
+  } catch (err) {
+    setError(err.error || "Credenciales inválidas");
+  }
+    
   };
 
   return (
