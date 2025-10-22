@@ -20,7 +20,7 @@ function AppContent() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/visit" element={<Visits />} />
         <Route path="/users" element={<Users />} />
-        <Route path="/setting" element={<Settings />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </>
   );
