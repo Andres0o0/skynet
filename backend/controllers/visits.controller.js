@@ -51,9 +51,16 @@ async function generatePdfForVisit(visit, visitId) {
       doc.fontSize(12).text(`ID Visita: ${visitId}`);
       doc.text(`Cliente: ${visit.client_name || "—"}`);
       doc.text(`Técnico: ${visit.technician_name || "—"}`);
-      doc.text(`Fecha programada: ${visit.scheduled_date || "—"}`);
-      doc.text(`Check-In: ${visit.check_in || "Pendiente"}`);
-      doc.text(`Check-Out: ${visit.check_out || "Pendiente"}`);
+     doc.text(`Fecha programada: ${
+  visit.scheduled_date ? new Date(visit.scheduled_date).toLocaleString("es-GT", { timeZone: "America/Guatemala" }) : "—"
+}`);
+doc.text(`Check-In: ${
+  visit.check_in ? new Date(visit.check_in).toLocaleString("es-GT", { timeZone: "America/Guatemala" }) : "Pendiente"
+}`);
+doc.text(`Check-Out: ${
+  visit.check_out ? new Date(visit.check_out).toLocaleString("es-GT", { timeZone: "America/Guatemala" }) : "Pendiente"
+}`);
+
       doc.text(`Estado: ${visit.status || "—"}`);
      
 
@@ -278,9 +285,12 @@ Estimado/a ${vinfo.client_name},
 
 La visita programada con nuestro técnico ${vinfo.technician_name} ha sido completada correctamente.
 
-Fecha programada: ${vinfo.scheduled_date ? new Date(vinfo.scheduled_date).toLocaleString() : "No registrada"}
-⏰ Check-In: ${vinfo.check_in ? new Date(vinfo.check_in).toLocaleString() : "Pendiente"}
-⏰ Check-Out: ${vinfo.check_out ? new Date(vinfo.check_out).toLocaleString() : "Pendiente"}
+Fecha programada: ${vinfo.scheduled_date ? new Date(visit.scheduled_date).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
+ : "No registrada"}
+⏰ Check-In: ${vinfo.check_in ? new Date(visit.check_in).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
+ : "Pendiente"}
+⏰ Check-Out: ${vinfo.check_out ? new Date(visit.check_out).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
+ : "Pendiente"}
 
 Adjunto encontrará el reporte en formato PDF con todos los detalles.
 
