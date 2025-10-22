@@ -76,7 +76,7 @@ function Dashboard() {
 
   return (
     <div className="container mt-4">
-      <h3>Gestión de Visitas</h3>
+      <h3>Gestión de Clientes</h3>
       <h5>Usuario {user?.name} </h5>
       <h5>Rol: {user?.role?.toUpperCase()}</h5>
 
