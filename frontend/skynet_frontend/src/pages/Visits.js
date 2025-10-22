@@ -1,3 +1,4 @@
+// frontend/src/pages/Visits.js
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,26 +11,7 @@ import {
 } from "../services/visitService";
 import { getUsers } from "../services/userService";
 import { getClients } from "../services/clientService";
-import { getUser } from "../utils/storage";
-
-// 🔧 Función para mostrar fechas sin desfase de zona horaria
-function formatLocalDate(dateString) {
-  if (!dateString) return "—";
-  // Si la fecha viene con espacio (formato BD "YYYY-MM-DD HH:mm:ss")
-  const [datePart, timePart] = dateString.split(" ");
-  if (timePart) {
-    const [hh, mm] = timePart.split(":");
-    return `${datePart} ${hh}:${mm}`;
-  }
-  // Si viene con T (formato ISO), la convertimos
-  const [d, t] = dateString.split("T");
-  if (t) {
-    const [hh, mm] = t.split(":");
-    return `${d} ${hh}:${mm}`;
-  }
-  return dateString;
-}
-
+import { getUser } from "../utils/storage"; // 👈
 function Visits() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -59,43 +41,46 @@ function Visits() {
   }, [navigate]);
 
   const loadData = async () => {
-    try {
-      const currentUser = getUser();
-      const [visitsData, clientsData, usersData] = await Promise.allSettled([
-        getVisits(),
-        getClients(),
-        getUsers(),
-      ]);
+  try {
+    const currentUser = getUser(); // ✅ usa directamente lo del storage
+    const [visitsData, clientsData, usersData] = await Promise.allSettled([
+      getVisits(),
+      getClients(),
+      getUsers(),
+    ]);
 
-      const visitsResult =
-        visitsData.status === "fulfilled" && Array.isArray(visitsData.value)
-          ? visitsData.value
-          : [];
-      const clientsResult =
-        clientsData.status === "fulfilled" && Array.isArray(clientsData.value)
-          ? clientsData.value
-          : [];
-      const usersResult =
-        usersData.status === "fulfilled" && Array.isArray(usersData.value)
-          ? usersData.value
-          : [];
+    const visitsResult =
+      visitsData.status === "fulfilled" && Array.isArray(visitsData.value)
+        ? visitsData.value
+        : [];
+    const clientsResult =
+      clientsData.status === "fulfilled" && Array.isArray(clientsData.value)
+        ? clientsData.value
+        : [];
+    const usersResult =
+      usersData.status === "fulfilled" && Array.isArray(usersData.value)
+        ? usersData.value
+        : [];
 
-      setVisits(visitsResult);
-      setClients(clientsResult);
+    setVisits(visitsResult);
+    setClients(clientsResult);
 
-      if (currentUser?.role === "admin" || currentUser?.role === "supervisor") {
-        setTechnicians(usersResult.filter((u) => u.role === "tecnico"));
-      } else {
-        setTechnicians(usersResult.filter((u) => u.id === currentUser?.id));
-      }
-
-      setError("");
-    } catch (err) {
-      console.error("❌ Error general en loadData():", err);
-      setError("Error al cargar información");
+    // 🔹 ahora sí, filtra técnicos de forma segura
+    if (currentUser?.role === "admin" || currentUser?.role === "supervisor") {
+      setTechnicians(usersResult.filter((u) => u.role === "tecnico"));
+    } else {
+      setTechnicians(usersResult.filter((u) => u.id === currentUser?.id));
     }
-  };
 
+    setError("");
+  } catch (err) {
+    console.error("❌ Error general en loadData():", err);
+    setError("Error al cargar información");
+  }
+};
+
+
+  // ---------- Registros / check-in / check-out ----------
   const handleRegister = async (visit) => {
     try {
       await registerVisit(visit.id, {});
@@ -106,6 +91,7 @@ function Visits() {
     }
   };
 
+  // ---------- CRUD ----------
   const handleEdit = (visit) => {
     setEditingId(visit.id);
     setEditedVisit({
@@ -131,7 +117,7 @@ function Visits() {
       const payload = {
         client_id: editedVisit.client_id,
         technician_id: editedVisit.technician_id,
-        scheduled_date: editedVisit.scheduled_date || null,
+        scheduled_date: editedVisit.scheduled_date || null, // ✅ usar valor local directo
         check_in: editedVisit.check_in || null,
         check_out: editedVisit.check_out || null,
         status: editedVisit.status,
@@ -173,7 +159,7 @@ function Visits() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...newVisit };
+      const payload = { ...newVisit }; // ✅ usar directamente la fecha del input
       await createVisit(payload);
       setNewVisit({
         client_id: "",
@@ -193,7 +179,7 @@ function Visits() {
   return (
     <div className="container mt-4">
       <h3>Gestión de Visitas</h3>
-      <h5>Usuario {user?.name}</h5>
+       <h5>Usuario {user?.name} </h5>
       <h5>Rol: {user?.role?.toUpperCase()}</h5>
       {error && <p className="text-danger">{error}</p>}
 
@@ -309,9 +295,24 @@ function Visits() {
                   <>
                     <td>{v.client_name}</td>
                     <td>{v.technician_name}</td>
-                    <td>{formatLocalDate(v.scheduled_date)}</td>
-                    <td>{formatLocalDate(v.check_in)}</td>
-                    <td>{formatLocalDate(v.check_out)}</td>
+                    <td>
+                      {v.scheduled_date
+                        ? new Date(v.scheduled_date).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
+
+                        : "—"}
+                    </td>
+                    <td>
+                      {v.check_in
+                        ? new Date(v.check_in).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
+
+                        : "Pendiente"}
+                    </td>
+                    <td>
+                      {v.check_out
+                        ? new Date(v.check_out).toLocaleString("es-GT", { timeZone: "America/Guatemala" })
+
+                        : "Pendiente"}
+                    </td>
                     <td>{v.status}</td>
                     <td>
                       {(user?.role === "admin" ||
